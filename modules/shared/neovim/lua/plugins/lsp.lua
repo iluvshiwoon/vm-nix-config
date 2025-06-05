@@ -53,21 +53,17 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 local capabilities = cmp_nvim_lsp.default_capabilities()
 
--- Change the Diagnostic symbols in the sign column (gutter)
--- (not in youtube nvim video)
-local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-for type, icon in pairs(signs) do
-    local hl = "DiagnosticSign" .. type
-    vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-end
-
-local servers = { --[[ 'nil_ls', ]] --[[ 'ccls', ]] 'bashls', 'lua_ls', 'clangd', 'nixd' }
-for _, lsp in ipairs(servers) do
-  lspconfig[lsp].setup {
-    -- on_attach = my_custom_on_attach,
-    capabilities = capabilities,
-  }
-end
+-- NEW (recommended)
+vim.diagnostic.config({
+    signs = {
+        text = {
+            [vim.diagnostic.severity.ERROR] = " ",
+            [vim.diagnostic.severity.WARN] = " ",
+            [vim.diagnostic.severity.HINT] = "󰠠 ",
+            [vim.diagnostic.severity.INFO] = " ",
+        },
+    },
+})
 
 -- lspconfig.nil_ls.setup{}
 -- lspconfig.ccls.setup{}
