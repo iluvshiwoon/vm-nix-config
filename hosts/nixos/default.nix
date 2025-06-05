@@ -1,43 +1,53 @@
-{ config, inputs, pkgs, lib, ... }:
-
-let user = "kershuen";
-    keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p" ]; in
-  {
-
+{
+  config,
+  inputs,
+  pkgs,
+  lib,
+  ...
+}: let
+  user = "kershuen";
+  keys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOk8iAnIaa1deoc7jw8YACPNVka1ZFJxhnU4G74TmS+p"];
+in {
   # Start with this simple test
   imports = [
     ../../modules/nixos/disk-config.nix
     ../../modules/shared
   ];
 
-
   boot = {
     loader = {
       systemd-boot = {
         enable = true;
-        configurationLimit = 42;  # From template
+        configurationLimit = 42; # From template
       };
       efi.canTouchEfiVariables = true;
     };
-    
+
     # Merged kernel modules (template + Apple Virtualization)
     initrd.availableKernelModules = [
       # From template (USB, SATA support)
-      "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod"
+      "xhci_pci"
+      "ahci"
+      "nvme"
+      "usbhid"
+      "usb_storage"
+      "sd_mod"
       # Apple Virtualization essentials
-      "virtio_pci" "virtio_blk" "virtiofs"
+      "virtio_pci"
+      "virtio_blk"
+      "virtiofs"
     ];
-    
+
     # From template
     kernelPackages = pkgs.linuxPackages_6_6;
-    kernelModules = [ "uinput" ];
-    
+    kernelModules = ["uinput"];
+
     # Performance optimizations for Apple Virtualization
     kernelParams = [
       "elevator=noop"
       "mitigations=off"
     ];
-    
+
     # Memory and I/O optimizations
     kernel.sysctl = {
       "vm.swappiness" = 10;
@@ -45,11 +55,11 @@ let user = "kershuen";
       "vm.dirty_background_ratio" = 5;
     };
   };
-  
+
   # Essential services
   services = {
-    fstrim.enable = true;  # SSD maintenance
-    earlyoom.enable = true;  # Prevent memory exhaustion
+    fstrim.enable = true; # SSD maintenance
+    earlyoom.enable = true; # Prevent memory exhaustion
   };
 
   # Set your time zone.
@@ -66,17 +76,17 @@ let user = "kershuen";
 
   # Turn on flag for proprietary software
   nix = {
-    nixPath = [ "nixos-config=/home/${user}/.local/share/src/nixos-config:/etc/nixos" ];
+    nixPath = ["nixos-config=/home/${user}/.local/share/src/nixos-config:/etc/nixos"];
     settings = {
-      allowed-users = [ "${user}" ];
-      trusted-users = [ "@admin" "${user}" ];
+      allowed-users = ["${user}"];
+      trusted-users = ["@admin" "${user}"];
     };
 
     package = pkgs.nix;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
-   };
+  };
 
   # Manages keys and such
   programs = {
@@ -86,7 +96,7 @@ let user = "kershuen";
 
   virtualisation.rosetta.enable = true;
 
-  services = { 
+  services = {
     desktopManager.plasma6.enable = true;
     spice-vdagentd.enable = true;
 
@@ -126,16 +136,16 @@ let user = "kershuen";
     #   };
     # };
 
-  #   # Emacs runs as a daemon
-  #   emacs = {
-  #     enable = true;
-  #     package = pkgs.emacs-unstable;
-  #   };
+    #   # Emacs runs as a daemon
+    #   emacs = {
+    #     enable = true;
+    #     package = pkgs.emacs-unstable;
+    #   };
   };
 
   # When emacs builds from no cache, it exceeds the 90s timeout default
   # systemd.user.services.emacs = {
-    # serviceConfig.TimeoutStartSec = "7min";
+  # serviceConfig.TimeoutStartSec = "7min";
   # };
 
   # Enable sound
@@ -167,15 +177,17 @@ let user = "kershuen";
   # Don't require password for users in `wheel` group for these commands
   security.sudo = {
     enable = true;
-    extraRules = [{
-      commands = [
-       {
-         command = "${pkgs.systemd}/bin/reboot";
-         options = [ "NOPASSWD" ];
-        }
-      ];
-      groups = [ "wheel" ];
-    }];
+    extraRules = [
+      {
+        commands = [
+          {
+            command = "${pkgs.systemd}/bin/reboot";
+            options = ["NOPASSWD"];
+          }
+        ];
+        groups = ["wheel"];
+      }
+    ];
   };
 
   fonts.packages = with pkgs; [
@@ -190,6 +202,6 @@ let user = "kershuen";
   environment.systemPackages = with pkgs; [
     gitAndTools.gitFull
     inetutils
-  ]; 
-    system.stateVersion = "21.05"; # Don't change this
+  ];
+  system.stateVersion = "21.05"; # Don't change this
 }

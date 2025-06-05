@@ -31,14 +31,13 @@ _: {
   #     };
   #   };
   # };
-  
-  # Streamlined Disko configuration for aarch64 NixOS VM with Apple Virtualization
-  # 128GB nvme0n1 disk, 12GB RAM, 6 CPU cores
-  
 
   # Streamlined Disko configuration for aarch64 NixOS VM with Apple Virtualization
   # 128GB nvme0n1 disk, 12GB RAM, 6 CPU cores
-  
+
+  # Streamlined Disko configuration for aarch64 NixOS VM with Apple Virtualization
+  # 128GB nvme0n1 disk, 12GB RAM, 6 CPU cores
+
   disko.devices = {
     disk = {
       nvme0n1 = {
@@ -55,10 +54,10 @@ _: {
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
-                mountOptions = [ "umask=0077" ];
+                mountOptions = ["umask=0077"];
               };
             };
-            
+
             # Swap partition - 4GB for 12GB RAM
             swap = {
               size = "4G";
@@ -67,7 +66,7 @@ _: {
                 randomEncryption = true;
               };
             };
-            
+
             # Root partition - remaining space
             root = {
               size = "100%";
@@ -85,25 +84,21 @@ _: {
         };
       };
     };
-    
-
   };
-  
+
   # Filesystem configurations
   fileSystems = {
     # Large tmpfs for better performance with 12GB RAM
     "/tmp" = {
       fsType = "tmpfs";
-      options = [ "size=2G" "nodev" "nosuid" ];
+      options = ["size=2G" "nodev" "nosuid"];
     };
-    
+
     # VirtioFS shared folder (Apple Virtualization)
     "/media/shared" = {
       fsType = "virtiofs";
       device = "share";
-      options = [ "rw" "nofail" ];
+      options = ["rw" "nofail"];
     };
   };
-  
 }
-

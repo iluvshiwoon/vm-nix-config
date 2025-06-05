@@ -1,7 +1,7 @@
 {
   description = "Configuration for MacOS and NixOS";
 
-nixConfig = {
+  nixConfig = {
     substituters = [
       # Query the mirror of USTC first, and then the official cache.
       "https://mirrors.ustc.edu.cn/nix-channels/store"
@@ -14,11 +14,11 @@ nixConfig = {
     ];
   };
 
-  inputs = { 
+  inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     home-manager.url = "github:nix-community/home-manager";
-        home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
     darwin = {
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -45,19 +45,24 @@ nixConfig = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.0.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
 
-  outputs = { self, darwin, home-manager, nixpkgs, disko, lix-module, ...} @inputs:
-    let
+  outputs = {
+    self,
+    darwin,
+    home-manager,
+    nixpkgs,
+    disko,
+    lix-module,
+    ...
+  } @ inputs: let
     inherit (self) outputs;
-      user = "kershuen";
-      linuxSystems = [ "x86_64-linux" "aarch64-linux" ];
-      darwinSystems = [ "aarch64-darwin" "x86_64-darwin" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs (linuxSystems ++ darwinSystems) f;
-    in
-    {
-  # Your custom packages
+    user = "kershuen";
+    linuxSystems = ["x86_64-linux" "aarch64-linux"];
+    darwinSystems = ["aarch64-darwin" "x86_64-darwin"];
+    forAllSystems = f: nixpkgs.lib.genAttrs (linuxSystems ++ darwinSystems) f;
+  in {
+    # Your custom packages
     # Accessible through 'nix build', 'nix shell', etc
     packages =
       forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
@@ -72,7 +77,8 @@ nixConfig = {
     # Reusable darwin modules
     darwinModules = import ./modules/darwin;
 
-      darwinConfigurations = nixpkgs.lib.genAttrs darwinSystems (system: let
+    darwinConfigurations = nixpkgs.lib.genAttrs darwinSystems (
+      system: let
         user = "kershuen";
       in
         darwin.lib.darwinSystem {
@@ -96,15 +102,17 @@ nixConfig = {
             ./hosts/darwin
           ];
         }
-      );
+    );
 
-      nixosConfigurations = nixpkgs.lib.genAttrs linuxSystems (system: nixpkgs.lib.nixosSystem {
+    nixosConfigurations = nixpkgs.lib.genAttrs linuxSystems (system:
+      nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {inherit inputs outputs;};
         modules = [
           disko.nixosModules.disko
           lix-module.nixosModules.default
-          home-manager.nixosModules.home-manager {
+          home-manager.nixosModules.home-manager
+          {
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
@@ -114,6 +122,6 @@ nixConfig = {
           }
           ./hosts/nixos
         ];
-     });
+      });
   };
 }

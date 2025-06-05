@@ -1,20 +1,23 @@
-{ config, pkgs, lib, ... }:
-
-let name = "shuen";
-    user = "kershuen";
-    email = "sntcillian@gmail.com"; in
 {
-    direnv = {
-      enable = true;
-      enableZshIntegration = true;
-      nix-direnv.enable = true;
-      config.global.hide_env_diff = true;
-    };
-
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
+  name = "shuen";
+  user = "kershuen";
+  email = "sntcillian@gmail.com";
+in {
+  direnv = {
+    enable = true;
+    enableZshIntegration = true;
+    nix-direnv.enable = true;
+    config.global.hide_env_diff = true;
+  };
 
   git = {
     enable = true;
-    ignores = [ "*.swp" ];
+    ignores = ["*.swp"];
     userName = name;
     userEmail = email;
     lfs = {
@@ -23,7 +26,7 @@ let name = "shuen";
     extraConfig = {
       init.defaultBranch = "main";
       core = {
-	    editor = "vim";
+        editor = "vim";
         autocrlf = "input";
       };
       pull.rebase = true;
@@ -33,8 +36,8 @@ let name = "shuen";
 
   vim = {
     enable = true;
-    plugins = with pkgs.vimPlugins; [ vim-airline vim-airline-themes vim-startify vim-tmux-navigator ];
-    settings = { ignorecase = true; };
+    plugins = with pkgs.vimPlugins; [vim-airline vim-airline-themes vim-startify vim-tmux-navigator];
+    settings = {ignorecase = true;};
     extraConfig = ''
       "" General
       set number
@@ -138,16 +141,18 @@ let name = "shuen";
 
       let g:airline_theme='bubblegum'
       let g:airline_powerline_fonts = 1
-      '';
-     };
+    '';
+  };
 
   ssh = {
     enable = true;
     includes = [
-      (lib.mkIf pkgs.stdenv.hostPlatform.isLinux
+      (
+        lib.mkIf pkgs.stdenv.hostPlatform.isLinux
         "/home/${user}/.ssh/config_external"
       )
-      (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
+      (
+        lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
         "/Users/${user}/.ssh/config_external"
       )
     ];
@@ -155,15 +160,16 @@ let name = "shuen";
       "github.com" = {
         identitiesOnly = true;
         identityFile = [
-          (lib.mkIf pkgs.stdenv.hostPlatform.isLinux
+          (
+            lib.mkIf pkgs.stdenv.hostPlatform.isLinux
             "/home/${user}/.ssh/id_github"
           )
-          (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
+          (
+            lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
             "/Users/${user}/.ssh/id_github"
           )
         ];
       };
     };
   };
-
 }
